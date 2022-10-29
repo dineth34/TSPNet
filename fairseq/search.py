@@ -23,7 +23,7 @@ class Search(object):
         if self.scores_buf is None:
             self.scores_buf = t.new()
             self.indices_buf = torch.LongTensor().to(device=t.device)
-            self.beams_buf = torch.LongTensor().to(device=t.device)
+            self.beams_buf = torch.FloatTensor().to(device=t.device)
 
     def step(self, step, lprobs, scores):
         """Take a single search step.
@@ -79,7 +79,7 @@ class BeamSearch(Search):
             out=(self.scores_buf, self.indices_buf),
         )
         vocab_size_tensor = torch.LongTensor([vocab_size]).to(device=self.indices_buf.device)
-        torch.div(self.indices_buf.float(), vocab_size_tensor, out=self.beams_buf.float())
+        torch.div(self.indices_buf, vocab_size_tensor, out=self.beams_buf)
         self.indices_buf.fmod_(vocab_size)
         return self.scores_buf, self.indices_buf, self.beams_buf
 
