@@ -78,7 +78,8 @@ class BeamSearch(Search):
             ),
             out=(self.scores_buf, self.indices_buf),
         )
-        torch.div(self.indices_buf, vocab_size, out=self.beams_buf)
+        vocab_size_tensor = torch.LongTensor([vocab_size]).to(device=self.indices_buf.device)
+        torch.div(self.indices_buf.float(), vocab_size_tensor, out=self.beams_buf.float())
         self.indices_buf.fmod_(vocab_size)
         return self.scores_buf, self.indices_buf, self.beams_buf
 
